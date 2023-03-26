@@ -61,7 +61,7 @@ public class TaskService {
             }
         }
         System.out.println("Задачи на день " + date);
-        printTasksByDate(allByDate);
+        printAllByDate(allByDate);
 
     }
     public static Collection<Task> foundAllByDate (LocalDate date) throws TaskNotFoundException {
@@ -75,7 +75,7 @@ public class TaskService {
         }
         return tasksByDate;
     }
-    public static void printTasksByDate(Collection<Task> tasks){
+    public static void printAllByDate(Collection<Task> tasks){
         tasks.stream()
                 .forEach(t-> System.out.println("Задача: " + t.getTitle() + ". Описание: " + t.getDescription() + ". ID: " + t.getId() + ". " + t.getType() + ". Время: " + LocalTime.from(t.getDateTime())));
     }
@@ -97,6 +97,7 @@ public class TaskService {
     public static Map<LocalDate, Collection<Task>> getAllGroupByDate(){
         Map<LocalDate, Collection<Task>> mapAllGroupByDate = taskMap.entrySet().stream()
                 .map(Map.Entry::getValue)
+                .sorted(Comparator.comparing(Task::getDateTime))
                 .collect(Collectors.groupingBy(t -> LocalDate.from(t.getDateTime()), Collectors.toCollection(ArrayList::new)));
         return mapAllGroupByDate;
     }
@@ -104,7 +105,7 @@ public class TaskService {
     public static void printAllGroupByDate(){
         Map<LocalDate, Collection<Task>> mapAllGroupByDate = getAllGroupByDate();
         if(mapAllGroupByDate.isEmpty()){
-            System.out.println("В календаре нет задач");
+            System.out.println("В календаре нет задач\n");
         }else {
             System.out.println("Задачи сгруппированы по датам");
             mapAllGroupByDate.entrySet()

@@ -6,7 +6,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class ScannerService {
-    public static Scanner scanner1 = new Scanner(System.in);
+//    public static Scanner scanner1 = new Scanner(System.in);
     private static DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
     private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
@@ -33,21 +33,44 @@ public class ScannerService {
         printTask(task);
 
     }
+    public static String createText(){
+        Scanner scanner = new Scanner(System.in);
+        String title = scanner.nextLine();
+        if (title.equals("")||title.equals(" ")){
+            try {
+                throw new IncorrectArgumentException("Данные введены некорректно");
+            } catch (IncorrectArgumentException e) {
+                System.err.println(e.getArgument());
+                printChoiceRepeatOrExit();
+                int choice = scanner.nextInt();
+                switch (choice){
+                    case 1:
+                        System.out.println("Введите текст");
+                        return createText();
+                    case 2:
+                    default:
+                        System.out.println("Вы вышли из программы");
+                        System.exit(1);
+                        break;
+                }
+            }
+        }
+        return title;
+    }
     public static LocalDate createDate() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Введите дату в формате дд.мм.гггг (Например, 19.04.2022)");
+        System.out.println("Введите дату в формате дд.мм.гггг (Например, 19.04.2023");
         String date = scanner.next();
         try {
-            return LocalDate.parse(date, formatterDate);
+                return LocalDate.parse(date, formatterDate);
         } catch (DateTimeParseException e){
             printIncorrect();
             printChoiceRepeatOrExit();
             int c = scanner.nextInt();
             switch (c) {
                 case 1:
-                    createDate();
-                    break;
+                    return createDate();
                 case 2:
                 default:
                     System.out.println("Вы вышли из программы");
@@ -170,31 +193,6 @@ public class ScannerService {
 
     public static void printChoiceRepeatOrExit(){
         System.out.println("Введите\n 1 - попробовать еще раз\n 2- выход из программы");
-    }
-
-    public static String createText(){
-        Scanner scanner = new Scanner(System.in);
-        String title = scanner.nextLine();
-            if (title.equals("")||title.equals(" ")){
-                try {
-                    throw new IncorrectArgumentException("Данные введены некорректно");
-                } catch (IncorrectArgumentException e) {
-                    System.err.println(e.getArgument());
-                    printChoiceRepeatOrExit();
-                    int choice = scanner.nextInt();
-                    switch (choice){
-                        case 1:
-                            System.out.println("Введите текст");
-                            return createText();
-                        case 2:
-                        default:
-                            System.out.println("Вы вышли из программы");
-                            System.exit(1);
-                            break;
-                    }
-                }
-            }
-        return title;
     }
 
     public static void editTask() {
