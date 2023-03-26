@@ -70,8 +70,7 @@ public class ScannerService {
             int c = scanner.nextInt();
             switch (c) {
                 case 1:
-                    createTime();
-                    break;
+                    return createTime();
                 case 2:
                 default:
                     System.out.println("Вы вышли из программы");
@@ -107,8 +106,7 @@ public class ScannerService {
                     int c = scanner.nextInt();
                     switch (c) {
                         case 1:
-                            createType();
-                            break;
+                            return createType();
                         case 2:
                         default:
                             System.out.println("Вы вышли из программы");
@@ -234,17 +232,17 @@ public class ScannerService {
         }
     }
     public static Task foundTaskScanner(){
-        Scanner scanner2 = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         LocalDateTime dateTime = createLocalDateTime(LocalDate.parse("01.01.2000",formatterDate),LocalTime.parse("00:00", formatterTime));
         Task task = new OneTimeTask("Задача", "Описание", Type.PERSONAL, dateTime);
             System.out.println("Введите id задачи");
-            int id = scanner2.nextInt();
+            int id = scanner.nextInt();
             try {
                 task = TaskService.foundTaskId(id);
             } catch (TaskNotFoundException e) {
                 System.err.println("Задача не найдена");
                 printChoiceRepeatOrExit();
-                int choice = scanner2.nextInt();
+                int choice = scanner.nextInt();
                 switch (choice){
                     case 1:
                         return foundTaskScanner();

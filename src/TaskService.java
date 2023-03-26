@@ -1,5 +1,8 @@
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TaskService {
@@ -36,4 +39,79 @@ public class TaskService {
         taskMap.remove(task.getId());
         System.out.println("Задача " + task.getId()+ " перенесена в архив");
     }
+    public static void getAllByDate() {
+        System.out.println("Ищем задачи на день");
+        LocalDate date = ScannerService.createDate();
+        Collection<Task> allByDate = null;
+        try {
+            allByDate = foundAllByDate(date);
+        } catch (TaskNotFoundException e) {
+            System.err.println("Задачи не найдены");
+            ScannerService.printChoiceRepeatOrExit();
+            Scanner scanner = new Scanner(System.in);
+            int choice = scanner.nextInt();
+            switch (choice){
+                case 1:
+                    getAllByDate();
+                    break;
+                case 2:
+                default:
+                    System.out.println("Вы вышли из программы");
+                    System.exit(1);
+            }
+        }
+        System.out.println("Задачи на день " + date);
+        printTasksByDate(allByDate);
+
+    }
+    public static Collection<Task> foundAllByDate (LocalDate date) throws TaskNotFoundException {
+        Collection<Task> tasksByDate = taskMap.entrySet().stream()
+                .filter(t -> t.getValue().appearsIn(date))
+                .map(t -> t.getValue())
+                .sorted(Comparator.comparing(Task::getDateTime))
+                .collect(Collectors.toList());
+        if(tasksByDate.isEmpty()){
+            throw new TaskNotFoundException();
+        }
+        return tasksByDate;
+    }
+    public static void printTasksByDate(Collection<Task> tasks){
+        tasks.stream()
+                .forEach(t-> System.out.println("Задача: " + t.getTitle() + ". Описание: " + t.getDescription() + ". ID: " + t.getId() + ". " + t.getType() + ". Время: " + LocalTime.from(t.getDateTime())));
+    }
+
+    public static Collection<Task> getRemovedTasks(){
+        return removedTasks;
+    }
+
+    public static void printRemovedTasks(){
+        if (removedTasks.isEmpty()){
+            System.out.println("В архиве нет задач\n");
+        } else {
+            System.out.println("Задачи в архиве");
+            removedTasks.stream()
+                    .forEach(System.out::println);
+        }
+    }
+
+    public static Map<LocalDate, Collection<Task>> getAllGroupByDate(){
+        Map<LocalDate, Collection<Task>> mapAllGroupByDate = taskMap.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .collect(Collectors.groupingBy(t -> LocalDate.from(t.getDateTime()), Collectors.toCollection(ArrayList::new)));
+        return mapAllGroupByDate;
+    }
+
+    public static void printAllGroupByDate(){
+        Map<LocalDate, Collection<Task>> mapAllGroupByDate = getAllGroupByDate();
+        if(mapAllGroupByDate.isEmpty()){
+            System.out.println("В календаре нет задач");
+        }else {
+            System.out.println("Задачи сгруппированы по датам");
+            mapAllGroupByDate.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(t-> System.out.println("Дата " + t.getKey() + "\n" + t.getValue()));
+        }
+    }
+
 }
