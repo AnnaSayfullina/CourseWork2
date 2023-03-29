@@ -6,9 +6,10 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class ScannerService {
-//    public static Scanner scanner1 = new Scanner(System.in);
+    public static final Scanner scanner = new Scanner(System.in);
     private static DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
     private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
 
     public static void createNewTask(){
         System.out.println("Придумайте название для задачи");
@@ -35,73 +36,55 @@ public class ScannerService {
     }
     public static String createText(){
         Scanner scanner = new Scanner(System.in);
-        String title = scanner.nextLine();
-        if (title.equals("")||title.equals(" ")){
-            try {
-                throw new IncorrectArgumentException("Данные введены некорректно");
-            } catch (IncorrectArgumentException e) {
-                System.err.println(e.getArgument());
-                printChoiceRepeatOrExit();
-                int choice = scanner.nextInt();
-                switch (choice){
-                    case 1:
-                        System.out.println("Введите текст");
-                        return createText();
-                    case 2:
-                    default:
-                        System.out.println("Вы вышли из программы");
-                        System.exit(1);
-                        break;
-                }
+        String text = null;
+        while (text == null){
+            System.out.println("Введите текст");
+            text = scanner.nextLine();
+            if (text.equals("")||text.equals(" ")) {
+                text = null;
+            choiceActionsAfterIncorrectArgument();
             }
         }
-        return title;
+        return text;
     }
     public static LocalDate createDate() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Введите дату в формате дд.мм.гггг (Например, 19.04.2023");
-        String date = scanner.next();
-        try {
-                return LocalDate.parse(date, formatterDate);
-        } catch (DateTimeParseException e){
-            printIncorrect();
-            printChoiceRepeatOrExit();
-            int c = scanner.nextInt();
-            switch (c) {
-                case 1:
-                    return createDate();
-                case 2:
-                default:
-                    System.out.println("Вы вышли из программы");
-                    System.exit(1);
-                    break;
+        LocalDate date = null;
+        while (date == null) {
+            System.out.println("Введите дату в формате дд.мм.гггг (Например, 19.04.2023)");
+            try {
+                return LocalDate.parse(scanner.next(), formatterDate);
+            } catch (DateTimeParseException e) {
+                choiceActionsAfterIncorrectArgument();
             }
         }
-        return LocalDate.parse("01.01.2000", formatterDate);
+        return date;
     }
-    public static LocalTime createTime() {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Введите время в формате чч:мм (Например, 15:30)");
-        String time = scanner.next();
-        try {
-            return LocalTime.parse(time, formatterTime);
-        } catch (DateTimeParseException e) {
-            printIncorrect();
-            printChoiceRepeatOrExit();
-            int c = scanner.nextInt();
-            switch (c) {
-                case 1:
-                    return createTime();
-                case 2:
-                default:
-                    System.out.println("Вы вышли из программы");
-                    System.exit(1);
-                    break;
-            }
-            return LocalTime.parse("00:00",formatterTime);
+    public static void  choiceActionsAfterIncorrectArgument(){
+        printIncorrect();
+        printChoiceRepeatOrExit();
+        switch (scanner.nextInt()) {
+            case 1:
+                break;
+            case 2:
+            default:
+                System.out.println("Вы вышли из программы");
+                System.exit(1);
+                break;
         }
+    }
+
+    public static LocalTime createTime() {
+        LocalTime time = null;
+        while (time == null){
+             System.out.println("Введите время в формате чч:мм (Например, 15:30)");
+             try {
+            return LocalTime.parse(scanner.next(), formatterTime);
+            } catch (DateTimeParseException e) {
+                choiceActionsAfterIncorrectArgument();
+            }
+        }
+        return time;
     }
     public static LocalDateTime createLocalDateTime(LocalDate date, LocalTime time){
         LocalDateTime localDateTime = LocalDateTime.of(date, time);
@@ -109,76 +92,46 @@ public class ScannerService {
     }
 
     public static Type createType(){
-        Scanner scanner = new Scanner(System.in);
-
+        Type type = null;
+        while (type == null){
         System.out.println("Введите: \n 1 - если задача рабочая \n 2 - если задача личная");
-        int typeOfTask = scanner.nextInt();
-        Type type = Type.WORK;
-        switch (typeOfTask){
-            case 1:
-                break;
-            case 2:
-                type = Type.PERSONAL;
-                break;
-            default:
-                try {
-                    throw new IncorrectArgumentException("Данные введены некорректно");
-                } catch (IncorrectArgumentException e) {
-                    System.err.println(e.getArgument());
-                    printChoiceRepeatOrExit();
-                    int c = scanner.nextInt();
-                    switch (c) {
-                        case 1:
-                            return createType();
-                        case 2:
-                        default:
-                            System.out.println("Вы вышли из программы");
-                            System.exit(1);
-                            break;
-                    }
-                }
+            switch (scanner.nextInt()) {
+                 case 1:
+                     type = Type.WORK;
+                     break;
+                 case 2:
+                    type = Type.PERSONAL;
+                    break;
+                 default:
+                    choiceActionsAfterIncorrectArgument();
+            }
         }
         return type;
     }
 
     public static Task chooseRepeatability(String title, String description, Type type, LocalDate date, LocalTime time){
-        Scanner scanner = new Scanner(System.in);
+        Task task = null;
+        while (task == null){
         System.out.println("Введите \n 1 - разовая\n 2 - ежедневная\n 3 - еженедельная\n 4 - ежемесячная\n 5 - ежегодная");
-        int repeatability = scanner.nextInt();
-        Task task = new OneTimeTask(title, description, type, createLocalDateTime(date,time));
-
-        switch (repeatability){
-        case 1:
-            break;
-        case 2:
-            task = new DailyTask(title, description, type, createLocalDateTime(date,time));
-            break;
-        case 3:
-            task = new WeeklyTask(title, description, type, createLocalDateTime(date,time));
-            break;
-        case 4:
-            task = new MonthlyTask(title, description, type, createLocalDateTime(date,time));
-            break;
-        case 5:
-            task = new YearlyTask(title, description, type, createLocalDateTime(date,time));
-            break;
-        default:
-            try {
-                throw new IncorrectArgumentException("Данные введены некорректно");
-            } catch (IncorrectArgumentException e) {
-                System.err.println(e.getArgument());
-                printChoiceRepeatOrExit();
-                int c = scanner.nextInt();
-                switch (c) {
-                    case 1:
-                        return chooseRepeatability(title,description, type, date, time);
-                    case 2:
-                    default:
-                        System.out.println("Вы вышли из программы");
-                        System.exit(1);
-                        break;
+            switch (scanner.nextInt()){
+                case 1:
+                    task = new OneTimeTask(title, description, type, createLocalDateTime(date,time));
+                    break;
+                case 2:
+                    task = new DailyTask(title, description, type, createLocalDateTime(date,time));
+                    break;
+                case 3:
+                    task = new WeeklyTask(title, description, type, createLocalDateTime(date,time));
+                    break;
+                case 4:
+                    task = new MonthlyTask(title, description, type, createLocalDateTime(date,time));
+                    break;
+                case 5:
+                    task = new YearlyTask(title, description, type, createLocalDateTime(date,time));
+                    break;
+                default:
+                    choiceActionsAfterIncorrectArgument();
                 }
-            }
         }
         return task;
     }
@@ -197,15 +150,14 @@ public class ScannerService {
 
     public static void editTask() {
         System.out.println("Редактирование задачи");
-        Task task = foundTaskScanner();
+        Task task = findTaskScanner();
         editTitleOrDescription(task);
-
     }
+
     public static void editTitleOrDescription(Task task){
-        Scanner scanner1 = new Scanner(System.in);
+
         System.out.println("Что будем редактировать?\nВведите:\n 1 - заголовок\n 2 - описание");
-            int choice = scanner1.nextInt();
-            switch (choice){
+            switch (scanner.nextInt()){
                 case 1:
                     System.out.println("Введите новый заголовок");
                     String newTitle = createText();
@@ -219,8 +171,7 @@ public class ScannerService {
                 default:
                     printIncorrect();
                     printChoiceRepeatOrExit();
-                    int c = scanner1.nextInt();
-                    switch (c){
+                    switch (scanner.nextInt()){
                         case 1:
                             editTitleOrDescription(task);
                             break;
@@ -229,27 +180,18 @@ public class ScannerService {
                     }
         }
     }
-    public static Task foundTaskScanner(){
-        Scanner scanner = new Scanner(System.in);
-        LocalDateTime dateTime = createLocalDateTime(LocalDate.parse("01.01.2000",formatterDate),LocalTime.parse("00:00", formatterTime));
-        Task task = new OneTimeTask("Задача", "Описание", Type.PERSONAL, dateTime);
-            System.out.println("Введите id задачи");
-            int id = scanner.nextInt();
-            try {
-                task = TaskService.foundTaskId(id);
-            } catch (TaskNotFoundException e) {
-                System.err.println("Задача не найдена");
-                printChoiceRepeatOrExit();
-                int choice = scanner.nextInt();
-                switch (choice){
-                    case 1:
-                        return foundTaskScanner();
-                    case 2:
-                    default:
-                        System.out.println("Вы вышли из программы");
-                        System.exit(1);
-                }
-            }
+    public static Task findTaskScanner(){
+
+           Task task = null;
+           while (task == null) {
+               try {
+                   System.out.println("Введите id задачи");
+                   task = TaskService.findTaskId(scanner.nextInt());
+               } catch (TaskNotFoundException e) {
+                   System.err.println("Задача не найдена");
+                   choiceActionsAfterIncorrectArgument();
+               }
+           }
         return task;
     }
 }

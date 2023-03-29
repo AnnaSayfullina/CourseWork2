@@ -1,9 +1,7 @@
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TaskService {
     private static Map<Integer, Task> taskMap = new HashMap<>();
@@ -15,7 +13,7 @@ public class TaskService {
     public static void printMap(){
         System.out.println(taskMap);
     }
-    public static Task foundTaskId(int id) throws TaskNotFoundException {
+    public static Task findTaskId(int id) throws TaskNotFoundException {
          Task task = taskMap.entrySet().stream()
                  .filter(num -> num.getKey().equals(id))
                  .map(t -> t.getValue())
@@ -34,7 +32,7 @@ public class TaskService {
 
     public static void removeTask(){
         System.out.println("Удаление задачи в архив");
-        Task task = ScannerService.foundTaskScanner();
+        Task task = ScannerService.findTaskScanner();
         removedTasks.add(task);
         taskMap.remove(task.getId());
         System.out.println("Задача " + task.getId()+ " перенесена в архив");
@@ -44,27 +42,16 @@ public class TaskService {
         LocalDate date = ScannerService.createDate();
         Collection<Task> allByDate = null;
         try {
-            allByDate = foundAllByDate(date);
+            allByDate = findAllByDate(date);
+            System.out.println("Задачи на день " + date);
+            printAllByDate(allByDate);
         } catch (TaskNotFoundException e) {
             System.err.println("Задачи не найдены");
-            ScannerService.printChoiceRepeatOrExit();
-            Scanner scanner = new Scanner(System.in);
-            int choice = scanner.nextInt();
-            switch (choice){
-                case 1:
-                    getAllByDate();
-                    break;
-                case 2:
-                default:
-                    System.out.println("Вы вышли из программы");
-                    System.exit(1);
-            }
         }
-        System.out.println("Задачи на день " + date);
-        printAllByDate(allByDate);
 
     }
-    public static Collection<Task> foundAllByDate (LocalDate date) throws TaskNotFoundException {
+
+    public static Collection<Task> findAllByDate (LocalDate date) throws TaskNotFoundException {
         Collection<Task> tasksByDate = taskMap.entrySet().stream()
                 .filter(t -> t.getValue().appearsIn(date))
                 .map(t -> t.getValue())
@@ -114,5 +101,4 @@ public class TaskService {
                     .forEach(t-> System.out.println("Дата " + t.getKey() + "\n" + t.getValue()));
         }
     }
-
 }
